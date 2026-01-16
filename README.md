@@ -5,33 +5,34 @@ local pgui = player:WaitForChild("PlayerGui")
 
 -- 1. CRIANDO A INTERFACE
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "KZC_Menu"
+screenGui.Name = "KZC_FinalMenu"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = pgui
 
 -- BOLINHA DE ATALHO (KZC)
 local toggleCircle = Instance.new("TextButton")
 toggleCircle.Name = "KZCBall"
-toggleCircle.Size = UDim2.new(0, 50, 0, 50)
-toggleCircle.Position = UDim2.new(0, 15, 0, 80)
-toggleCircle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toggleCircle.Size = UDim2.new(0, 45, 0, 45)
+toggleCircle.Position = UDim2.new(0, 10, 0, 10)
+toggleCircle.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 toggleCircle.Text = "KZC"
 toggleCircle.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleCircle.Font = Enum.Font.GothamBold
-toggleCircle.TextSize = 14
+toggleCircle.TextSize = 12
 toggleCircle.Parent = screenGui
 Instance.new("UICorner", toggleCircle).CornerRadius = UDim.new(1, 0)
 
--- BOTÃO DESYNC
+-- BOTÃO DESYNC (POSIÇÃO DO CÍRCULO VERMELHO)
 local button = Instance.new("TextButton")
 button.Name = "DesyncButton"
-button.Size = UDim2.new(0, 140, 0, 45)
-button.Position = UDim2.new(0.5, -70, 0.8, 0)
+button.Size = UDim2.new(0, 130, 0, 40)
+-- Posição fixa no canto superior esquerdo (abaixo do ícone do Roblox)
+button.Position = UDim2.new(0, 15, 0, 100) 
 button.BackgroundColor3 = Color3.fromRGB(20, 25, 35)
 button.Text = "Desync"
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.Font = Enum.Font.GothamBold
-button.TextSize = 18
+button.TextSize = 16
 button.Parent = screenGui
 
 local uiCorner = Instance.new("UICorner", button)
@@ -42,7 +43,7 @@ uiStroke.Thickness = 2.5
 uiStroke.Color = Color3.fromRGB(0, 255, 255)
 uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- 2. FUNÇÃO DRAGGABLE (MANTÉM A POSIÇÃO)
+-- 2. FUNÇÃO PARA ARRASTAR (MANTÉM O LUGAR SE ESCONDER)
 local dragging, dragInput, dragStart, startPos
 local function update(input)
     local delta = input.Position - dragStart
@@ -68,12 +69,12 @@ UserInputService.InputChanged:Connect(function(input)
     if input == dragInput and dragging then update(input) end
 end)
 
--- ABRIR/FECHAR SEM RESETAR POSIÇÃO
+-- ABRIR/FECHAR BOTÃO
 toggleCircle.MouseButton1Click:Connect(function()
     button.Visible = not button.Visible
 end)
 
--- 3. LOGICA DO DESYNC (CORRIGIDA)
+-- 3. LOGICA DO DESYNC (FFLAGS + RESPAWN + TEMPO 4.79)
 local FFlags = {
     GameNetPVHeaderRotationalVelocityZeroCutoffExponent = -5000,
     LargeReplicatorWrite5 = true,
@@ -134,18 +135,18 @@ button.MouseButton1Click:Connect(function()
             pcall(function() setfflag(tostring(name), tostring(value)) end)
         end
     end)
-    respawnar(player) -- O respawn acontece agora, no momento do clique
+    respawnar(player)
     
-    -- FEEDBACK VISUAL (CRONÔMETRO)
+    -- FEEDBACK VISUAL
     button.Text = "ativando..."
     uiStroke.Color = Color3.fromRGB(255, 165, 0)
     
-    task.wait(4.79) -- O tempo de espera é só para o texto mudar
+    task.wait(4.79) -- Voltou para 4.79s
     
     button.Text = "Desync Ativo!"
     uiStroke.Color = Color3.fromRGB(0, 255, 0)
     
-    -- VOLTA AO NORMAL APÓS 5 SEGUNDOS
+    -- RESET APÓS 5 SEGUNDOS
     task.wait(5)
     button.Text = "Desync"
     uiStroke.Color = Color3.fromRGB(0, 255, 255)
